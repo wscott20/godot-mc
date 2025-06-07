@@ -1,0 +1,75 @@
+[gd_scene load_steps=13 format=3 uid="uid://3xvswy7pqowq"]
+
+[ext_resource type="Script" uid="uid://bsjfyft1v5dt7" path="res://Root.cs" id="1_80nbo"]
+[ext_resource type="Script" uid="uid://cwt8rc40e1f1c" path="res://Player.cs" id="2_e2o6t"]
+[ext_resource type="Script" uid="uid://djxn6gthv02vi" path="res://Raycast.cs" id="3_feb5d"]
+[ext_resource type="Texture2D" uid="uid://g27u7e2gys0b" path="res://textures/whiteoutline.png" id="4_fc0e3"]
+[ext_resource type="Texture2D" uid="uid://cwaw47jd8gutv" path="res://textures/hotbar.png" id="5_7jktm"]
+[ext_resource type="Script" uid="uid://bpj5hedaoangd" path="res://Hotbar.cs" id="6_eow3j"]
+[ext_resource type="Texture2D" uid="uid://dsj1iwniidcud" path="res://textures/selectedItem.png" id="7_eow3j"]
+[ext_resource type="Texture2D" uid="uid://csbfu7kjp5aw0" path="res://textures/crosshair.png" id="8_j5wjh"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_7jktm"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7jktm"]
+transparency = 1
+albedo_texture = ExtResource("4_fc0e3")
+uv1_scale = Vector3(3, 2, 1)
+texture_filter = 0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_feb5d"]
+size = Vector3(0.6, 1.8, 0.6)
+
+[sub_resource type="Environment" id="Environment_e2o6t"]
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+
+[node name="Root" type="Node3D"]
+script = ExtResource("1_80nbo")
+
+[node name="Outline" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -64, 0)
+mesh = SubResource("BoxMesh_7jktm")
+surface_material_override/0 = SubResource("StandardMaterial3D_7jktm")
+
+[node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0)
+collision_layer = 4
+script = ExtResource("2_e2o6t")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+shape = SubResource("BoxShape3D_feb5d")
+
+[node name="Cam" type="Camera3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+environment = SubResource("Environment_e2o6t")
+
+[node name="Raycast" type="RayCast3D" parent="Player/Cam"]
+target_position = Vector3(0, 0, -8)
+collision_mask = 2
+script = ExtResource("3_feb5d")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Hotbar" type="Sprite2D" parent="UI"]
+position = Vector2(576, 628)
+scale = Vector2(2, 2)
+texture = ExtResource("5_7jktm")
+script = ExtResource("6_eow3j")
+
+[node name="Node2D" type="Node2D" parent="UI"]
+position = Vector2(576, 628)
+
+[node name="SelectedItem" type="Sprite2D" parent="UI/Node2D"]
+position = Vector2(-152, 0)
+scale = Vector2(2, 2)
+texture = ExtResource("7_eow3j")
+
+[node name="Crosshair" type="Sprite2D" parent="UI"]
+position = Vector2(575, 324)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("8_j5wjh")
+
+[node name="AudioNodes" type="Node3D" parent="."]
+
+[node name="DroppedItems" type="Node3D" parent="."]

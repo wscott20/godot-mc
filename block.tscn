@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://bd3kxloc3pprt"]
+
+[ext_resource type="ArrayMesh" uid="uid://c4urpcwfydd72" path="res://block.obj" id="1_im0tn"]
+[ext_resource type="Script" uid="uid://bx33tbm86kq2o" path="res://Block.cs" id="1_xfwl5"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_im0tn"]
+
+[node name="Block" type="StaticBody3D"]
+collision_layer = 3
+script = ExtResource("1_xfwl5")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_im0tn")
+skeleton = NodePath("")
+
+[node name="Collider" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_im0tn")

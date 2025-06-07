@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://dvn0peoa38sxm"]
+
+[ext_resource type="Script" uid="uid://cfwpiot05fip4" path="res://Item.cs" id="2_ttk8k"]
+
+[node name="Item" type="Sprite2D"]
+texture_filter = 1
+script = ExtResource("2_ttk8k")

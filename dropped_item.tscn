@@ -1,0 +1,44 @@
+[gd_scene load_steps=9 format=3 uid="uid://c16gkmusbpqh1"]
+
+[ext_resource type="Script" uid="uid://cbho1dchctsyw" path="res://DroppedItem.cs" id="1_1y2xd"]
+[ext_resource type="Texture2D" uid="uid://bvgw11fv6boei" path="res://textures/items/bedrock.png" id="2_qpxn3"]
+[ext_resource type="Texture2D" uid="uid://g27u7e2gys0b" path="res://textures/whiteoutline.png" id="3_762pt"]
+[ext_resource type="Script" uid="uid://c4md04jiu23hf" path="res://ItemPhysics.cs" id="4_hi56c"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qpxn3"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_hi56c"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mbl1o"]
+transparency = 1
+albedo_texture = ExtResource("3_762pt")
+uv1_scale = Vector3(3, 2, 1)
+texture_filter = 0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_762pt"]
+size = Vector3(0.01, 0.01, 0.01)
+
+[node name="DroppedItem" type="Node3D"]
+script = ExtResource("1_1y2xd")
+
+[node name="Collider" type="Area3D" parent="."]
+collision_mask = 5
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Collider"]
+shape = SubResource("BoxShape3D_qpxn3")
+
+[node name="Item" type="Sprite3D" parent="Collider"]
+transform = Transform3D(1.25, 0, 0, 0, 1.25, 0, 0, 0, 1.25, 0, 0, 0)
+texture = ExtResource("2_qpxn3")
+
+[node name="Outline" type="MeshInstance3D" parent="Collider"]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+mesh = SubResource("BoxMesh_hi56c")
+surface_material_override/0 = SubResource("StandardMaterial3D_mbl1o")
+
+[node name="Body" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.12, 0)
+script = ExtResource("4_hi56c")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Body"]
+shape = SubResource("BoxShape3D_762pt")
