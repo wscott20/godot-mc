@@ -10,9 +10,11 @@ public partial class Block : StaticBody3D
 		set
 		{
 			name = value;
-			GetNode<MeshInstance3D>("Mesh").MaterialOverride = new StandardMaterial3D{
+			GetNode<MeshInstance3D>("Mesh").MaterialOverride = new StandardMaterial3D
+			{
 				AlbedoTexture = ResourceLoader.Load<Texture2D>($"res://textures/blocks/{name}.png"),
-				TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest};
+				TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest
+			};
 			blastResistance = name switch
 			{
 				"bedrock" => 18e6f,

@@ -2,55 +2,80 @@ using Godot;
 using System;
 using System.Linq;
 //using System.Runtime.CompilerServices;
-
+public struct HotbarItem(string n, int a)
+{
+	public int amount = a;
+	public string name = n;
+};
 public partial class Hotbar : Sprite2D
 {
-	public string[] items = ["", "", "", "", "", "", "", "", ""];
+	public string[] items = new string[9];
 	PackedScene itemScene;
 	Item[] itemArray = new Item[9];
+	Label[] itemNums = new Label[9];
 	public override void _EnterTree()
 	{
 		base._EnterTree();
 		itemScene = ResourceLoader.Load<PackedScene>("res://item.tscn");
-		//}
-		//public override void _Ready()
-		//{
-		foreach (Item item in GetChildren().Cast<Item>())
+		for (int i = 0; i < 9; i++)
 		{
-			int n = 0;
-			switch (item.Position.X)
-			{
-				case -76: n = 0; break;
-				case -57: n = 1; break;
-				case -38: n = 2; break;
-				case -19: n = 3; break;
-				case 0: n = 4; break;
-				case 19: n = 5; break;
-				case 38: n = 6; break;
-				case 57: n = 7; break;
-				case 76: n = 8; break;
-				default: break;
-			}
-			items[n] = item.BlockName;
-			itemArray[n] = item;
+			items[i] = "";
+			itemNums[i] = GetNode<Label>($"{i}");
 		}
 	}
-	public void SetItem(int slot, string name)
+	public void SetItem(int slot, string name, int amount)
 	{
 		if (slot < 0 || slot > 8) return;
-		if (items[slot] != "")
-			GD.Print(items[slot] + " replaced with " + name);
-			//itemArray[slot].QueueFree();
-		var item = itemScene.Instantiate<Item>();
-		itemArray[slot] = item;
-		item.BlockName = name;
-		AddChild(item);
-		item.Position = new Vector2(-76 + slot * 19, 0);
-		items[slot] = name;
+		if (name == "" && items[slot] != "")
+		{
+			itemArray[slot].QueueFree();
+			items[slot] = "";
+		}
+		else if (items[slot] == name)
+		{
+			if (amount <= 0)
+			{
+				itemArray[slot].QueueFree();
+				items[slot] = "";
+				itemNums[slot].Text = "";
+			}
+			else itemNums[slot].Text = amount.ToString();
+		}
+		else
+		{
+			int i = Array.IndexOf(items, name);
+			if (i == -1)
+			{
+				var item = itemScene.Instantiate<Item>();
+				itemArray[slot] = item;
+				item.BlockName = name;
+				AddChild(item);
+				item.Position = new Vector2(-76 + slot * 19, 0);
+				items[slot] = name;
+				itemArray[slot] = item;
+				itemNums[slot].Text = amount.ToString();
+			}
+			else
+			{
+				if (amount == 0)
+				{
+					itemArray[slot].QueueFree();
+					items[slot] = "";
+					itemNums[slot].Text = "";
+				}
+				else itemNums[slot].Text = amount.ToString();
+			}
+		}
+		for (int i = 0; i < 9; i++)
+		{
+			itemNums[i].Visible = itemNums[i].Text != "1";
+			itemNums[i].ZIndex = 1;
+		}
 	}
-	public string GetItem(int slot)
+	public HotbarItem? GetItem(int slot)
 	{
-		if (slot < 0 || slot > 8) return "";
-		return items[slot];
+		if (slot < 0 || slot > 8) return null;
+		if (int.TryParse(itemNums[slot].Text, out int n)) return new(items[slot], n);
+		else return null;
 	}
 }

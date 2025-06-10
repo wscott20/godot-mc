@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public partial class Root : Node3D
 {
@@ -8,10 +9,9 @@ public partial class Root : Node3D
 	AudioStream[] stone, dirt, grass, wood, explosion;
 	Raycast raycast;
 	Player player;
-	string[] startingItems = ["cobblestone", "stone", "dirt", "leaves", "log", "tnt", "coalOre", "ironOre", "goldOre"];
 	Sprite2D selectedItem;
 	Node3D audioNodes, droppedItems;
-	static int Rng(int min, int max) => GD.RandRange(min, max);
+	public static int Rng(int min, int max) => GD.RandRange(min, max);
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
@@ -45,9 +45,8 @@ public partial class Root : Node3D
 			explosion[i] = ResourceLoader.Load<AudioStream>($"res://sounds/explosion/{i + 1}.ogg");
 		}
 		var hotbar = GetNode<Hotbar>("UI/Hotbar");
-		for (int i = 0; i < startingItems.Length; i++)
-			hotbar.SetItem(i, startingItems[i]);
-		List<Block> blocks = new List<Block>();
+		hotbar.SetItem(0, "tnt", 100);
+		List<Block> blocks = [];
 		for (int x = -8; x <= 8; x++)
 		{
 			for (int z = -8; z <= 8; z++)
@@ -75,10 +74,11 @@ public partial class Root : Node3D
 		}
 		droppedItems = GetNode<Node3D>("DroppedItems");
 	}
-	public void DropItem(string name, Vector3 pos)
+	public void DropItem(string name, Vector3 pos, int amount)
 	{
 		var item = dropItem.Instantiate<DroppedItem>();
 		droppedItems.AddChild(item);
+		item.amount = amount;
 		item.ItemName = name;
 		item.GlobalPosition = pos;
 	}
@@ -124,15 +124,17 @@ public partial class Root : Node3D
 	{
 		if (block.BlockName == "tnt")
 		{
-			await ToSignal(GetTree().CreateTimer(0.5f), "timeout");
+			await Delay(0.1f);
 			Explode(block.GlobalPosition, 5, 4);
 			block.QueueFree();
 			if (playSound) PlaySound("explode", block.GlobalPosition);
 			return;
 		}
-		if (drop) DropItem(block.BlockName, block.GlobalPosition);
+		string name = block.BlockName;
+		var pos = block.GlobalPosition;
 		block.QueueFree();
 		if (playSound) PlaySound(block.BlockName, block.GlobalPosition);
+		if (drop) DropItem(name, pos, 1);
 	}
 	public async void Explode(Vector3 pos, float rds, float blastPower)
 	{
@@ -157,12 +159,14 @@ public partial class Root : Node3D
 				float requiredResistance = ((1.3f * blastPower) - (0.75f * attenSteps * stepLen)) / stepLen - 0.3f;
 				if (b.blastResistance < requiredResistance)
 				{
-					if (b.BlockName == "tnt") await ToSignal(GetTree().CreateTimer(.1), "timeout");
+					if (b.BlockName == "tnt") await Delay(0.1f);
+					//else await Delay(0.01f);
 					BreakBlock(b, b.BlockName == "tnt", player.gamemode == Gamemode.survival);
 				}
 			}
 		}
 	}
+	public async Task Delay(float timeout) => await ToSignal(GetTree().CreateTimer(timeout), "timeout");
 	public void PlaySound(string name, Vector3 pos)
 	{
 		var audio = new AudioStreamPlayer3D();
@@ -194,11 +198,21 @@ public partial class Root : Node3D
 					audio.Stream = wood[n];
 					break;
 				case "explode":
-					audio.Stream = new[] { wood, stone, dirt, grass }[Rng(0, 3)][n];
+					audio.Stream = explosion[n];
 					break;
 				case "pickItem":
-					audio.Stream = ResourceLoader.Load<AudioStream>("res://sounds/itemPickup.ogg");
+					audio.Stream = ResourceLoader.Load<AudioStream>("res://sounds/entity/itemPickup.ogg");
 					//audio.PitchScale = new[] { 1 / (float)Rng(0, 4), Rng(1, 2) }[Rng(0, 1)];
+					break;
+				case "playerHurt":
+					int s = Rng(1, 3);
+					audio.Stream = ResourceLoader.Load<AudioStream>($"res://sounds/entity/playerHurt{s}.ogg");
+					break;
+				case "smallFall":
+					audio.Stream = ResourceLoader.Load<AudioStream>("res://sounds/entity/smallFall.ogg");
+					break;
+				case "bigFall":
+					audio.Stream = ResourceLoader.Load<AudioStream>("res://sounds/entity/bigFall.ogg");
 					break;
 				default: break;
 			}
@@ -235,7 +249,6 @@ public partial class Root : Node3D
 	{
 		foreach (var item in droppedItems.GetChildren())
 		{
-			//await ToSignal(GetTree().CreateTimer(.01f), "timeout");
 			(item as DroppedItem).Pick(player);
 		}
 

@@ -10,6 +10,7 @@ public partial class DroppedItem : Node3D
 	Area3D collider;
 	CharacterBody3D rb;
 	string name;
+	public int amount;
 	public string pendingItemName;
 	public string ItemName
 	{
@@ -49,7 +50,7 @@ public partial class DroppedItem : Node3D
 	}
 	public void Pick(Player p)
 	{
-		p.PickItem(this);
+		p.PickItem(this,amount);
 		QueueFree();
 	}
 	public override void _PhysicsProcess(double delta)

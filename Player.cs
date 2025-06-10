@@ -7,29 +7,45 @@ public partial class Player : CharacterBody3D
 	Vector2 mouseMove;
 	Root root;
 	Camera3D cam;
+	Hotbar hotbar;
 	[Export] public float Speed = 5.0f;
 	[Export] public float JumpVelocity = 4.5f;
 	[Export] public Gamemode gamemode = Gamemode.creative;
-	public string[] inventory;
 	float currTime = 0;
 	float timeSinceSpacePressed = -1;
 	bool spacePressed = false;
 	bool flying = false;
-	public void PickItem(DroppedItem item)
+	float prevYvel;
+	HealthBar healthbar;
+	public void PickItem(DroppedItem item, int amount)
 	{
 		string name = item.ItemName;
 		//item.QueueFree();
-		for (int i = 0; i < inventory.Length; i++)
-			if (inventory[i] == "") inventory[i] = name;
+		for (int i = 0; i < 9; i++)
+		{
+			var itm = hotbar.GetItem(i);
+			if (itm.HasValue && itm.Value.name == name)
+			{
+				hotbar.SetItem(i, name, itm.Value.amount + amount);
+				break;
+			}
+			else if (!itm.HasValue)
+			{
+				hotbar.SetItem(i, name, amount);
+				break;
+			}
+		}
 		root.PlaySound("pickItem", Position);
 	}
 	public override void _Ready()
 	{
-		inventory = new string[9];
 		root = GetTree().CurrentScene as Root;
+		hotbar = root.GetNode<Hotbar>("UI/Hotbar");
+		healthbar = root.GetNode<HealthBar>("UI/HealthBar");
 		Input.MouseMode = Input.MouseModeEnum.Captured;
 		mouseMove = new Vector2();
 		cam = GetNode<Camera3D>("Cam");
+		healthbar.Visible = gamemode == Gamemode.survival;
 	}
 	public override void _Process(double delta)
 	{
@@ -51,8 +67,11 @@ public partial class Player : CharacterBody3D
 		}
 		else spacePressed = false;
 	}
+	public void x() => x();
 	public override void _PhysicsProcess(double delta)
 	{
+		if (Input.IsKeyPressed(Key.Ctrl)) Speed = 20;
+		else Speed = 5;
 		float dt = (float)delta;
 		var ori = cam.Rotation;
 		ori.Y -= mouseMove.X;
@@ -66,10 +85,16 @@ public partial class Player : CharacterBody3D
 			if (Input.IsKeyPressed(Key.Space)) vel.Y = Speed;
 			if (Input.IsKeyPressed(Key.Tab)) vel.Y = -Speed;
 		}
-		else if (IsOnFloor() && vel.Y < 0 && gamemode == Gamemode.survival)
+		else if (IsOnFloor() && prevYvel < 0 && gamemode == Gamemode.survival)
 		{
-			//take damage
-			vel.Y = 0;
+			float fallDist = Mathf.Round(GetFallDist(prevYvel) * 10) / 10f;
+			if (fallDist >= 4)
+			{
+				int fallDamage = (int)Math.Round(fallDist) - 4;
+				root.PlaySound(fallDamage >= 5 ? "bigFall" : "smallFall", GlobalPosition);
+				TakeDamage(fallDamage);
+				if (Root.Rng(1, 100) == 1) x();
+			}
 		}
 		if (Input.IsKeyPressed(Key.Space) && IsOnFloor())
 			vel.Y = JumpVelocity;
@@ -107,14 +132,21 @@ public partial class Player : CharacterBody3D
 			vel.X = vel.Z = 0;
 		Velocity = vel;
 		MoveAndSlide();
+		prevYvel = vel.Y;
 		cam.Rotation = ori;
 	}
+	float GetFallDist(float vel) => vel * vel / (2 * -GetGravity().Y);
 	public override void _Input(InputEvent ev)
 	{
 		if (ev is InputEventKey k && k.Pressed && k.Keycode == Key.G)
 		{
 			gamemode = gamemode == Gamemode.survival ? Gamemode.creative : Gamemode.survival;
-			GD.Print(gamemode == Gamemode.creative ? "creative" : "survival");
+			healthbar.Visible = gamemode == Gamemode.survival;
 		}
+	}
+	public void TakeDamage(int dmg)
+	{
+		healthbar.Health -= dmg;
+		root.PlaySound("playerHurt", GlobalPosition);
 	}
 }

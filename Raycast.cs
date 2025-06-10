@@ -8,7 +8,7 @@ public partial class Raycast : RayCast3D
 	Player player;
 	Hotbar hotbar;
 	public int currentItem = 0;
-	static readonly float clickCd = .0f;//.35f;
+	static readonly float clickCd = .1f;//.35f;
 	float rcTimer = 0, lcTimer = 0;
 	public override void _EnterTree()
 	{
@@ -20,11 +20,10 @@ public partial class Raycast : RayCast3D
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
-		if (IsColliding())
+		if (IsColliding() && GetCollider() is PhysicsBody3D collider)
 		{
-			var collider = GetCollider();
 			var norm = GetCollisionNormal();
-			outline.GlobalPosition = (collider as StaticBody3D).GlobalPosition;
+			outline.GlobalPosition = collider.GlobalPosition;
 			var playerPos = GlobalPosition.Round() - Vector3.Up * 1.5f;
 			if (Input.IsMouseButtonPressed(MouseButton.Right))
 			{
@@ -33,15 +32,15 @@ public partial class Raycast : RayCast3D
 				{
 					rcTimer = clickCd;
 					var pos = outline.GlobalPosition + norm;
-					string block = hotbar.GetItem(currentItem);
+					var block = hotbar.GetItem(currentItem);
 					if (
 						pos != playerPos &&
 						pos != playerPos + Vector3.Up &&
-						block != ""
+						block.HasValue && block.Value.name != ""
 					)
 					{
-						var newBlock = root.SpawnBlock(pos, block, true);
-						if (block == "log")
+						var newBlock = root.SpawnBlock(pos, block.Value.name, true);
+						if (block.Value.name == "log")
 						{
 							string normStr = $"{norm.X} {norm.Y} {norm.Z}";
 							switch (normStr)
@@ -60,6 +59,12 @@ public partial class Raycast : RayCast3D
 									break;
 							}
 						}
+						if (player.gamemode == Gamemode.survival)
+							hotbar.SetItem(
+								currentItem,
+								block.Value.name,
+								block.Value.amount - 1
+							);
 					}
 				}
 			}
@@ -69,7 +74,7 @@ public partial class Raycast : RayCast3D
 				lcTimer -= (float)delta;
 				if (lcTimer <= 0)
 				{
-					root.BreakBlock(collider as Block, true, player.gamemode == Gamemode.survival);
+					if (collider is Block b) root.BreakBlock(b, true, player.gamemode == Gamemode.survival);
 					lcTimer = clickCd;
 				}
 			}

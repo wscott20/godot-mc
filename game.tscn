@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://3xvswy7pqowq"]
+[gd_scene load_steps=15 format=3 uid="uid://3xvswy7pqowq"]
 
 [ext_resource type="Script" uid="uid://bsjfyft1v5dt7" path="res://Root.cs" id="1_80nbo"]
 [ext_resource type="Script" uid="uid://cwt8rc40e1f1c" path="res://Player.cs" id="2_e2o6t"]
@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://bpj5hedaoangd" path="res://Hotbar.cs" id="6_eow3j"]
 [ext_resource type="Texture2D" uid="uid://dsj1iwniidcud" path="res://textures/selectedItem.png" id="7_eow3j"]
 [ext_resource type="Texture2D" uid="uid://csbfu7kjp5aw0" path="res://textures/crosshair.png" id="8_j5wjh"]
+[ext_resource type="Script" uid="uid://ccjticmfyyngw" path="res://HealthBar.cs" id="9_hve3p"]
+[ext_resource type="Texture2D" uid="uid://c1ghv6pvl7m2" path="res://textures/heart.png" id="9_vef74"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_7jktm"]
 
@@ -45,7 +47,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 environment = SubResource("Environment_e2o6t")
 
 [node name="Raycast" type="RayCast3D" parent="Player/Cam"]
-target_position = Vector3(0, 0, -8)
+target_position = Vector3(0, 0, -20)
 collision_mask = 2
 script = ExtResource("3_feb5d")
 
@@ -56,6 +58,78 @@ position = Vector2(576, 628)
 scale = Vector2(2, 2)
 texture = ExtResource("5_7jktm")
 script = ExtResource("6_eow3j")
+
+[node name="0" type="Label" parent="UI/Hotbar"]
+offset_left = -70.5
+offset_top = 2.5
+offset_right = -60.5
+offset_bottom = 25.5
+scale = Vector2(0.3, 0.3)
+horizontal_alignment = 2
+
+[node name="1" type="Label" parent="UI/Hotbar"]
+offset_left = -51.0
+offset_top = 2.5
+offset_right = -41.0
+offset_bottom = 25.5
+scale = Vector2(0.3, 0.3)
+horizontal_alignment = 2
+
+[node name="2" type="Label" parent="UI/Hotbar"]
+offset_left = -32.0
+offset_top = 2.5
+offset_right = -22.0
+offset_bottom = 25.5
+scale = Vector2(0.3, 0.3)
+horizontal_alignment = 2
+
+[node name="3" type="Label" parent="UI/Hotbar"]
+offset_left = -13.0
+offset_top = 2.5
+offset_right = -3.0
+offset_bottom = 25.5
+scale = Vector2(0.3, 0.3)
+horizontal_alignment = 2
+
+[node name="4" type="Label" parent="UI/Hotbar"]
+offset_left = 6.0
+offset_top = 2.5
+offset_right = 16.0
+offset_bottom = 25.5
+scale = Vector2(0.3, 0.3)
+horizontal_alignment = 2
+
+[node name="5" type="Label" parent="UI/Hotbar"]
+offset_left = 25.0
+offset_top = 2.5
+offset_right = 35.0
+offset_bottom = 25.5
+scale = Vector2(0.3, 0.3)
+horizontal_alignment = 2
+
+[node name="6" type="Label" parent="UI/Hotbar"]
+offset_left = 44.0
+offset_top = 2.5
+offset_right = 54.0
+offset_bottom = 25.5
+scale = Vector2(0.3, 0.3)
+horizontal_alignment = 2
+
+[node name="7" type="Label" parent="UI/Hotbar"]
+offset_left = 63.0
+offset_top = 2.5
+offset_right = 73.0
+offset_bottom = 25.5
+scale = Vector2(0.3, 0.3)
+horizontal_alignment = 2
+
+[node name="8" type="Label" parent="UI/Hotbar"]
+offset_left = 82.0
+offset_top = 2.5
+offset_right = 92.0
+offset_bottom = 25.5
+scale = Vector2(0.3, 0.3)
+horizontal_alignment = 2
 
 [node name="Node2D" type="Node2D" parent="UI"]
 position = Vector2(576, 628)
@@ -69,6 +143,51 @@ texture = ExtResource("7_eow3j")
 position = Vector2(575, 324)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("8_j5wjh")
+
+[node name="HealthBar" type="Node2D" parent="UI"]
+position = Vector2(489, 592)
+scale = Vector2(2, 2)
+script = ExtResource("9_hve3p")
+
+[node name="0" type="Sprite2D" parent="UI/HealthBar"]
+position = Vector2(-36, 0)
+texture = ExtResource("9_vef74")
+
+[node name="1" type="Sprite2D" parent="UI/HealthBar"]
+position = Vector2(-28, 0)
+texture = ExtResource("9_vef74")
+
+[node name="2" type="Sprite2D" parent="UI/HealthBar"]
+position = Vector2(-20, 0)
+texture = ExtResource("9_vef74")
+
+[node name="3" type="Sprite2D" parent="UI/HealthBar"]
+position = Vector2(-12, 0)
+texture = ExtResource("9_vef74")
+
+[node name="4" type="Sprite2D" parent="UI/HealthBar"]
+position = Vector2(-4, 0)
+texture = ExtResource("9_vef74")
+
+[node name="5" type="Sprite2D" parent="UI/HealthBar"]
+position = Vector2(4, 0)
+texture = ExtResource("9_vef74")
+
+[node name="6" type="Sprite2D" parent="UI/HealthBar"]
+position = Vector2(12, 0)
+texture = ExtResource("9_vef74")
+
+[node name="7" type="Sprite2D" parent="UI/HealthBar"]
+position = Vector2(20, 0)
+texture = ExtResource("9_vef74")
+
+[node name="8" type="Sprite2D" parent="UI/HealthBar"]
+position = Vector2(28, 0)
+texture = ExtResource("9_vef74")
+
+[node name="9" type="Sprite2D" parent="UI/HealthBar"]
+position = Vector2(36, 0)
+texture = ExtResource("9_vef74")
 
 [node name="AudioNodes" type="Node3D" parent="."]
 
